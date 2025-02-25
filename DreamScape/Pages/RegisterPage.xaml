@@ -1,0 +1,29 @@
+<Page
+    x:Class="DreamScape.Pages.RegisterPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:DreamScape.Pages"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid Padding="20">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="300">
+            <Button Content="Inloggen" Click="LoginButton_Click" HorizontalAlignment="Center" Margin="0,0,0,50"/>
+            
+            <TextBlock Text="Registreren" FontSize="24" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+
+            <TextBlock Text="Gebruikersnaam"/>
+            <TextBox x:Name="UsernameTextBox" PlaceholderText="Voer je gebruikersnaam in" Margin="0,5"/>
+
+            <TextBlock Text="E-mail"/>
+            <TextBox x:Name="EmailTextBox" PlaceholderText="Voer je e-mail in" Margin="0,5"/>
+
+            <TextBlock Text="Wachtwoord"/>
+            <PasswordBox x:Name="PasswordBox" PlaceholderText="Voer je wachtwoord in" Margin="0,5"/>
+
+            <TextBlock Text="Bevestig Wachtwoord"/>
+            <PasswordBox x:Name="ConfirmPasswordBox" PlaceholderText="Bevestig je wachtwoord" Margin="0,5"/>
+
+            <Button Content="Registreren" Click="RegisterButton_Click" Margin="0,20,0,0"/>
+        </StackPanel>
+    </Grid>
+</Page>
