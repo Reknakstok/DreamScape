@@ -1,14 +1,13 @@
 ﻿using DreamScape.Data;
 using System.Linq;
 
-
 namespace DreamScape.Services
 {
     public static class AuthService
     {
         public static int? CurrentUserId { get; private set; }
 
-        public static bool Login(string username, string password)
+        public static User Login(string username, string password)
         {
             using (var db = new AppDbContext())
             {
@@ -16,10 +15,10 @@ namespace DreamScape.Services
                 if (user != null)
                 {
                     CurrentUserId = user.Id;
-                    return true;
+                    return user;
                 }
             }
-            return false;
+            return null;
         }
 
         public static void Logout()

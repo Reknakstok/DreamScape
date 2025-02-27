@@ -27,7 +27,7 @@ namespace DreamScape
             this.InitializeComponent();
 
             NavigationService.Initialize(MainFrame); 
-            NavigationService.NavigateTo(typeof(Pages.LoginPage)); 
+            NavigationService.NavigateTo(typeof(Pages.LoginPage));
 
             //using (var db = new AppDbContext())
             //{

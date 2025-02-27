@@ -53,7 +53,7 @@ namespace DreamScape.Data
                 new User { Id = 4, Username = "AdminMaster", Password = "Admin007", Role = "Beheerder", Email = "admin@example.com" },
                 new User { Id = 5, Username = "ThunderRogue", Password = "Thund3r!!", Role = "Speler", Email = "thunder@example.com" },
                 new User { Id = 6, Username = "J", Password = "J", Role = "Speler", Email = "J@example.com" },
-                new User { Id = 7, Username = "P", Password = "p", Role = "Speler", Email = "P@example.com" }
+                new User { Id = 7, Username = "P", Password = "p", Role = "Beheerder", Email = "P@example.com" }
             );
             
             modelBuilder.Entity<Item>().HasData(

@@ -2,8 +2,6 @@ using DreamScape.Data;
 using DreamScape.Services;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace DreamScape.Pages
 {
@@ -19,37 +17,34 @@ namespace DreamScape.Pages
             string username = UsernameTextBox.Text;
             string email = EmailTextBox.Text;
             string password = PasswordBox.Password;
-            string confirmPassword = ConfirmPasswordBox.Password; 
+            string confirmPassword = ConfirmPasswordBox.Password;
 
-            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(confirmPassword))
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(email) ||
+                string.IsNullOrEmpty(password) || string.IsNullOrEmpty(confirmPassword))
             {
                 ShowMessage("Alle velden moeten ingevuld zijn.");
                 return;
             }
 
-            if (!IsValidEmail(email))
+            if (!ValidationService.IsValidEmail(email))
             {
                 ShowMessage("Voer een geldig e-mailadres in.");
                 return;
             }
 
-            using (var db = new AppDbContext())
+            if (ValidationService.IsUsernameTaken(username))
             {
-                var existingUser = db.Users.FirstOrDefault(u => u.Username == username);
-                if (existingUser != null)
-                {
-                    ShowMessage($"De gebruikersnaam '{username}' is al in gebruik. Kies een andere gebruikersnaam.");
-                    return;
-                }
+                ShowMessage($"De gebruikersnaam '{username}' is al in gebruik. Kies een andere gebruikersnaam.");
+                return;
             }
 
-            if (password != confirmPassword)
+            if (!ValidationService.ArePasswordsMatching(password, confirmPassword))
             {
                 ShowMessage("De wachtwoorden komen niet overeen.");
                 return;
             }
 
-            if (!IsValidPassword(password))
+            if (!ValidationService.IsValidPassword(password))
             {
                 ShowMessage("Het wachtwoord moet minimaal 8 tekens lang zijn en een combinatie van letters en cijfers bevatten.");
                 return;
@@ -73,16 +68,10 @@ namespace DreamScape.Pages
             NavigationService.NavigateTo(typeof(LoginPage));
         }
 
-        private bool IsValidEmail(string email)
-        {
-            return email.Contains("@");
-        }
-
         private void LoginButton_Click(object sender, RoutedEventArgs e)
         {
             NavigationService.NavigateTo(typeof(LoginPage));
         }
-
 
         private void ShowMessage(string message)
         {
@@ -94,11 +83,6 @@ namespace DreamScape.Pages
                 XamlRoot = this.XamlRoot
             };
             _ = dialog.ShowAsync();
-        }
-
-        private bool IsValidPassword(string password)
-        {
-            return password.Length >= 8 && Regex.IsMatch(password, @"[A-Za-z]") && Regex.IsMatch(password, @"[0-9]");
         }
     }
 }

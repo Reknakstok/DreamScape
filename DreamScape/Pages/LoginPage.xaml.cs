@@ -21,9 +21,18 @@ namespace DreamScape.Pages
             string username = UsernameTextBox.Text;
             string password = PasswordBox.Password;
 
-            if (AuthService.Login(username, password))
+            var user = AuthService.Login(username, password);
+
+            if (user != null)
             {
-                NavigationService.NavigateTo(typeof(MainPage));
+                if (user.Role == "Beheerder")
+                {
+                    NavigationService.NavigateTo(typeof(AdminPage));
+                }
+                else
+                {
+                    NavigationService.NavigateTo(typeof(MainPage));
+                }
             }
             else
             {
@@ -37,5 +46,6 @@ namespace DreamScape.Pages
                 _ = dialog.ShowAsync();
             }
         }
+
     }
 }
