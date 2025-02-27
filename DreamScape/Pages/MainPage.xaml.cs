@@ -103,6 +103,7 @@ namespace DreamScape.Pages
                 XamlRoot = this.XamlRoot
             };
             await itemDetailsDialog.ShowAsync();
+            //test123
         }
     }
 }
