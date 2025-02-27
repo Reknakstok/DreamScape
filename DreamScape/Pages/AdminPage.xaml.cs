@@ -159,56 +159,84 @@ namespace DreamScape.Pages
             await dialog.ShowAsync();
         }
 
+        private async void AddItem_Click(object sender, RoutedEventArgs e)
+        {
+            var nameTextBox = new TextBox { PlaceholderText = "Naam" };
+            var descriptionTextBox = new TextBox { PlaceholderText = "Beschrijving" };
+            var typeComboBox = new ComboBox { ItemsSource = new[] { "Accesoire", "Armor", "Wapen" }, SelectedIndex = 0 };
+            var rarityComboBox = new ComboBox { ItemsSource = new[] { "Zeldzaam", "Episch", "Legendarisch" }, SelectedIndex = 0 };
+
+            var powerSlider = new Slider { Minimum = 0, Maximum = 100, Value = 0, Header = "Kracht" };
+            var speedSlider = new Slider { Minimum = 0, Maximum = 100, Value = 0, Header = "Snelheid" };
+            var durabilitySlider = new Slider { Minimum = 0, Maximum = 100, Value = 0, Header = "Duurzaamheid" };
+
+            var magicalPropertiesTextBox = new TextBox { PlaceholderText = "Magische Eigenschappen" };
+
+            var dialog = new ContentDialog
+            {
+                Title = "Nieuw Item Toevoegen",
+                PrimaryButtonText = "Opslaan",
+                SecondaryButtonText = "Annuleren",
+                Content = new StackPanel
+                {
+                    Children = { nameTextBox, descriptionTextBox, typeComboBox, rarityComboBox, powerSlider, speedSlider, durabilitySlider, magicalPropertiesTextBox }
+                },
+                XamlRoot = this.XamlRoot
+            };
+
+            if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+            {
+                string name = nameTextBox.Text.Trim();
+                string description = descriptionTextBox.Text.Trim();
+                string type = typeComboBox.SelectedItem?.ToString();
+                string rarity = rarityComboBox.SelectedItem?.ToString();
+                string magicalProperties = magicalPropertiesTextBox.Text.Trim();
+
+                int power = (int)powerSlider.Value;
+                int speed = (int)speedSlider.Value;
+                int durability = (int)durabilitySlider.Value;
+
+                if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(description) || string.IsNullOrEmpty(type) || string.IsNullOrEmpty(rarity))
+                {
+                    ShowMessage("Alle velden moeten ingevuld worden.");
+                    return;
+                }
+
+                using (var db = new AppDbContext())
+                {
+                    db.Items.Add(new Item
+                    {
+                        Name = name,
+                        Description = description,
+                        Type = type,
+                        Rarity = rarity,
+                        Power = power,
+                        Speed = speed,
+                        Durability = durability,
+                        MagicalProperties = magicalProperties
+                    });
+                    db.SaveChanges();
+                }
+
+                LoadItems();
+            }
+        }
+
+
         private async void EditItem_Click(object sender, RoutedEventArgs e)
         {
             if (ItemsListView.SelectedItem is Item selectedItem)
             {
                 var nameTextBox = new TextBox { Text = selectedItem.Name, PlaceholderText = "Naam" };
                 var descriptionTextBox = new TextBox { Text = selectedItem.Description, PlaceholderText = "Beschrijving" };
-
-                var typeComboBox = new ComboBox
-                {
-                    ItemsSource = new[] { "Accesoire", "Armor", "Wapen" },
-                    SelectedItem = selectedItem.Type
-                };
-
-                var rarityComboBox = new ComboBox
-                {
-                    ItemsSource = new[] { "Zeldzaam", "Episch", "Legendarisch" },
-                    SelectedItem = selectedItem.Rarity
-                };
-
-                var powerTextBox = new TextBox
-                {
-                    Text = selectedItem.Power.ToString(),
-                    PlaceholderText = "Kracht"
-                };
-                powerTextBox.InputScope = new InputScope
-                {
-                    Names = { new InputScopeName(InputScopeNameValue.Number) }
-                };
-
-                var speedTextBox = new TextBox
-                {
-                    Text = selectedItem.Speed.ToString(),
-                    PlaceholderText = "Snelheid"
-                };
-                speedTextBox.InputScope = new InputScope
-                {
-                    Names = { new InputScopeName(InputScopeNameValue.Number) }
-                };
-
-                var durabilityTextBox = new TextBox
-                {
-                    Text = selectedItem.Durability.ToString(),
-                    PlaceholderText = "Duurzaamheid"
-                };
-                durabilityTextBox.InputScope = new InputScope
-                {
-                    Names = { new InputScopeName(InputScopeNameValue.Number) }
-                };
-
                 var magicalPropertiesTextBox = new TextBox { Text = selectedItem.MagicalProperties, PlaceholderText = "Magische Eigenschappen" };
+
+                var typeComboBox = new ComboBox { ItemsSource = new[] { "Accesoire", "Armor", "Wapen" }, SelectedItem = selectedItem.Type };
+                var rarityComboBox = new ComboBox { ItemsSource = new[] { "Zeldzaam", "Episch", "Legendarisch" }, SelectedItem = selectedItem.Rarity };
+
+                var powerSlider = new Slider { Minimum = 0, Maximum = 100, Value = selectedItem.Power, Header = "Kracht" };
+                var speedSlider = new Slider { Minimum = 0, Maximum = 100, Value = selectedItem.Speed, Header = "Snelheid" };
+                var durabilitySlider = new Slider { Minimum = 0, Maximum = 100, Value = selectedItem.Durability, Header = "Duurzaamheid" };
 
                 var dialog = new ContentDialog
                 {
@@ -223,9 +251,9 @@ namespace DreamScape.Pages
                     descriptionTextBox,
                     typeComboBox,
                     rarityComboBox,
-                    powerTextBox,
-                    speedTextBox,
-                    durabilityTextBox,
+                    powerSlider,
+                    speedSlider,
+                    durabilitySlider,
                     magicalPropertiesTextBox
                 }
                     },
@@ -236,23 +264,9 @@ namespace DreamScape.Pages
 
                 if (result == ContentDialogResult.Primary)
                 {
-                    if (!int.TryParse(powerTextBox.Text, out int power))
-                    {
-                        ShowMessage("Kracht moet een geldig nummer zijn.");
-                        return;
-                    }
-
-                    if (!int.TryParse(speedTextBox.Text, out int speed))
-                    {
-                        ShowMessage("Snelheid moet een geldig nummer zijn.");
-                        return;
-                    }
-
-                    if (!int.TryParse(durabilityTextBox.Text, out int durability))
-                    {
-                        ShowMessage("Duurzaamheid moet een geldig nummer zijn.");
-                        return;
-                    }
+                    int power = (int)powerSlider.Value;
+                    int speed = (int)speedSlider.Value;
+                    int durability = (int)durabilitySlider.Value;
 
                     selectedItem.Name = nameTextBox.Text;
                     selectedItem.Description = descriptionTextBox.Text;
@@ -273,6 +287,8 @@ namespace DreamScape.Pages
                 }
             }
         }
+
+
 
 
         private async void DeleteItem_Click(object sender, RoutedEventArgs e)
