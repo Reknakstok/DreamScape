@@ -1,6 +1,8 @@
 using DreamScape.Services;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using System;
+using System.Globalization;
 
 namespace DreamScape.Pages
 {
@@ -16,7 +18,7 @@ namespace DreamScape.Pages
             NavigationService.NavigateTo(typeof(RegisterPage));
         }
 
-        private void LoginButton_Click(object sender, RoutedEventArgs e)
+        private async void LoginButton_Click(object sender, RoutedEventArgs e)
         {
             string username = UsernameTextBox.Text;
             string password = PasswordBox.Password;
@@ -27,7 +29,24 @@ namespace DreamScape.Pages
             {
                 if (user.Role == "Beheerder")
                 {
-                    NavigationService.NavigateTo(typeof(AdminPage));
+                    ContentDialog dialog = new ContentDialog()
+                    {
+                        Title = "Naar welk dashboard wilt u gaan?",
+                        Content = "Kies een dashboard om naar te gaan:",
+                        PrimaryButtonText = "Beheerder Dashboard",
+                        SecondaryButtonText = "Gebruiker Dashboard",
+                        XamlRoot = this.XamlRoot
+                    };
+                    var result = await dialog.ShowAsync();
+
+                    if (result == ContentDialogResult.Primary)
+                    {
+                        NavigationService.NavigateTo(typeof(AdminPage));
+                    }
+                    else if (result == ContentDialogResult.Secondary)
+                    {
+                        NavigationService.NavigateTo(typeof(MainPage));
+                    }
                 }
                 else
                 {
@@ -46,6 +65,5 @@ namespace DreamScape.Pages
                 _ = dialog.ShowAsync();
             }
         }
-
     }
 }
