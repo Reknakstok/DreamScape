@@ -2,6 +2,7 @@ using DreamScape.Data;
 using DreamScape.Services;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
 using System;
 using System.Linq;
 
@@ -13,6 +14,7 @@ namespace DreamScape.Pages
         {
             this.InitializeComponent();
             LoadUsers();
+            LoadItems();
         }
 
         private void LoadUsers()
@@ -20,6 +22,13 @@ namespace DreamScape.Pages
             using (var db = new AppDbContext())
             {
                 UsersListView.ItemsSource = db.Users.ToList();
+            }
+        }
+        private void LoadItems()
+        {
+            using (var db = new AppDbContext())
+            {
+                ItemsListView.ItemsSource = db.Items.ToList();
             }
         }
 
@@ -150,6 +159,152 @@ namespace DreamScape.Pages
             await dialog.ShowAsync();
         }
 
+        private async void EditItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (ItemsListView.SelectedItem is Item selectedItem)
+            {
+                var nameTextBox = new TextBox { Text = selectedItem.Name, PlaceholderText = "Naam" };
+                var descriptionTextBox = new TextBox { Text = selectedItem.Description, PlaceholderText = "Beschrijving" };
+
+                var typeComboBox = new ComboBox
+                {
+                    ItemsSource = new[] { "Accesoire", "Armor", "Wapen" },
+                    SelectedItem = selectedItem.Type
+                };
+
+                var rarityComboBox = new ComboBox
+                {
+                    ItemsSource = new[] { "Zeldzaam", "Episch", "Legendarisch" },
+                    SelectedItem = selectedItem.Rarity
+                };
+
+                var powerTextBox = new TextBox
+                {
+                    Text = selectedItem.Power.ToString(),
+                    PlaceholderText = "Kracht"
+                };
+                powerTextBox.InputScope = new InputScope
+                {
+                    Names = { new InputScopeName(InputScopeNameValue.Number) }
+                };
+
+                var speedTextBox = new TextBox
+                {
+                    Text = selectedItem.Speed.ToString(),
+                    PlaceholderText = "Snelheid"
+                };
+                speedTextBox.InputScope = new InputScope
+                {
+                    Names = { new InputScopeName(InputScopeNameValue.Number) }
+                };
+
+                var durabilityTextBox = new TextBox
+                {
+                    Text = selectedItem.Durability.ToString(),
+                    PlaceholderText = "Duurzaamheid"
+                };
+                durabilityTextBox.InputScope = new InputScope
+                {
+                    Names = { new InputScopeName(InputScopeNameValue.Number) }
+                };
+
+                var magicalPropertiesTextBox = new TextBox { Text = selectedItem.MagicalProperties, PlaceholderText = "Magische Eigenschappen" };
+
+                var dialog = new ContentDialog
+                {
+                    Title = "Item Bewerken",
+                    PrimaryButtonText = "Opslaan",
+                    SecondaryButtonText = "Annuleren",
+                    Content = new StackPanel
+                    {
+                        Children =
+                {
+                    nameTextBox,
+                    descriptionTextBox,
+                    typeComboBox,
+                    rarityComboBox,
+                    powerTextBox,
+                    speedTextBox,
+                    durabilityTextBox,
+                    magicalPropertiesTextBox
+                }
+                    },
+                    XamlRoot = this.XamlRoot
+                };
+
+                var result = await dialog.ShowAsync();
+
+                if (result == ContentDialogResult.Primary)
+                {
+                    if (!int.TryParse(powerTextBox.Text, out int power))
+                    {
+                        ShowMessage("Kracht moet een geldig nummer zijn.");
+                        return;
+                    }
+
+                    if (!int.TryParse(speedTextBox.Text, out int speed))
+                    {
+                        ShowMessage("Snelheid moet een geldig nummer zijn.");
+                        return;
+                    }
+
+                    if (!int.TryParse(durabilityTextBox.Text, out int durability))
+                    {
+                        ShowMessage("Duurzaamheid moet een geldig nummer zijn.");
+                        return;
+                    }
+
+                    selectedItem.Name = nameTextBox.Text;
+                    selectedItem.Description = descriptionTextBox.Text;
+                    selectedItem.Type = typeComboBox.SelectedItem?.ToString();
+                    selectedItem.Rarity = rarityComboBox.SelectedItem?.ToString();
+                    selectedItem.Power = power;
+                    selectedItem.Speed = speed;
+                    selectedItem.Durability = durability;
+                    selectedItem.MagicalProperties = magicalPropertiesTextBox.Text;
+
+                    using (var db = new AppDbContext())
+                    {
+                        db.Items.Update(selectedItem);
+                        db.SaveChanges();
+                    }
+
+                    LoadItems();
+                }
+            }
+        }
+
+
+        private async void DeleteItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (ItemsListView.SelectedItem is not Item selectedItem) return;
+
+            var dialog = new ContentDialog
+            {
+                Title = "Verwijder Item",
+                Content = $"Weet je zeker dat je {selectedItem.Name} wilt verwijderen?",
+                PrimaryButtonText = "Verwijderen",
+                SecondaryButtonText = "Annuleren",
+                XamlRoot = this.XamlRoot
+            };
+
+            dialog.PrimaryButtonClick += (_, _) =>
+            {
+                using (var db = new AppDbContext())
+                {
+                    var item = db.Items.FirstOrDefault(u => u.Id == selectedItem.Id);
+                    if (item != null)
+                    {
+                        db.Items.Remove(item);
+                        db.SaveChanges();
+                    }
+                }
+                LoadItems();
+            };
+
+            await dialog.ShowAsync();
+        }
+
         private void LogoutButton_Click(object sender, RoutedEventArgs e)
         {
             AuthService.Logout();
@@ -201,6 +356,26 @@ namespace DreamScape.Pages
             }
             errorMessage = string.Empty;
             return true;
+        }
+
+        private async void UserItemsListView_ItemClick(object sender, ItemClickEventArgs e)
+        {
+            var clickedItem = (Item)e.ClickedItem;
+
+            ContentDialog itemDetailsDialog = new ContentDialog()
+            {
+                Title = clickedItem.Name,
+                Content = $"Beschrijving: {clickedItem.Description}\n" +
+                          $"Type: {clickedItem.Type}\n" +
+                          $"Zeldzaamheid: {clickedItem.Rarity}\n" +
+                          $"Power: {clickedItem.Power}\n" +
+                          $"Speed: {clickedItem.Speed}\n" +
+                          $"Durability: {clickedItem.Durability}\n" +
+                          $"Magische Eigenschappen: {clickedItem.MagicalProperties}",
+                CloseButtonText = "OK",
+                XamlRoot = this.XamlRoot
+            };
+            await itemDetailsDialog.ShowAsync();
         }
     }
 }

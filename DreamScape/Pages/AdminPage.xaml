@@ -5,30 +5,57 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
-    
 
     <Grid Padding="20">
-        <StackPanel>
-            <TextBlock Text="Gebruikersbeheer" FontSize="24" FontWeight="Bold" Margin="0,0,0,10"/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
 
-            <ListView x:Name="UsersListView" Height="300" SelectionMode="Single">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel Orientation="Horizontal" Margin="5">
-                            <TextBlock Text="{Binding Username}" FontWeight="Bold" Width="150"/>
-                            <TextBlock Text="{Binding Email}" Width="200"/>
-                            <TextBlock Text="{Binding Role}" Width="100"/>
-                        </StackPanel>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <TextBlock Text="Gebruikersbeheer" FontSize="24" FontWeight="Bold" Margin="0,0,0,10"/>
 
-            <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                <Button Content="Gebruiker toevoegen" Click="AddUser_Click" Margin="5"/>
-                <Button Content="Bewerken" Click="EditUser_Click" Margin="5"/>
-                <Button Content="Verwijderen" Click="DeleteUser_Click" Margin="5"/>
-                <Button Content="Uitloggen" Click="LogoutButton_Click" Margin="5"/>
+                <ListView x:Name="UsersListView" Height="Auto" SelectionMode="Single">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" Margin="5">
+                                <TextBlock Text="{Binding Username}" FontWeight="Bold" Width="150"/>
+                                <TextBlock Text="{Binding Email}" Width="200"/>
+                                <TextBlock Text="{Binding Role}" Width="100"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+
+                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                    <Button Content="Gebruiker toevoegen" Click="AddUser_Click" Margin="5"/>
+                    <Button Content="Bewerken" Click="EditUser_Click" Margin="5"/>
+                    <Button Content="Verwijderen" Click="DeleteUser_Click" Margin="5"/>
+                </StackPanel>
+
+                <TextBlock Text="Itembeheer" FontSize="24" FontWeight="Bold" Margin="20,10,0,10"/>
+
+                <ListView x:Name="ItemsListView" Height="Auto" SelectionMode="Single"  ItemClick="UserItemsListView_ItemClick" IsItemClickEnabled="True">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" Margin="5">
+                                <TextBlock Text="{Binding Name}" FontWeight="Bold" Width="150"/>
+                                <TextBlock Text="{Binding Type}" Width="100"/>
+                                <TextBlock Text="{Binding Rarity}" Width="100"/>
+                            </StackPanel>
+
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+
+                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                    <Button Content="Bewerken Item" Click="EditItem_Click" Margin="5"/>
+                    <Button Content="Verwijderen" Click="DeleteItem_Click" Margin="5"/>
+                </StackPanel>
             </StackPanel>
-        </StackPanel>
+        </ScrollViewer>
+
+        <Button Content="Uitloggen" Click="LogoutButton_Click" Margin="5" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Top"/>
     </Grid>
 </Page>
