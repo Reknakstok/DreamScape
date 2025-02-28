@@ -1,6 +1,6 @@
 ﻿using Microsoft.UI.Xaml.Controls;
 
-namespace DreamScape.Services
+namespace DreamScape.Data
 {
     public static class NavigationService
     {

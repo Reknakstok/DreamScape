@@ -288,9 +288,6 @@ namespace DreamScape.Pages
             }
         }
 
-
-
-
         private async void DeleteItem_Click(object sender, RoutedEventArgs e)
         {
             if (ItemsListView.SelectedItem is not Item selectedItem) return;

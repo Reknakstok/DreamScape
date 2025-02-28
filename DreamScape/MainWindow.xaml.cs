@@ -13,7 +13,6 @@ using Microsoft.UI.Xaml.Navigation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using DreamScape.Data;
-using DreamScape.Services;
 using DreamScape.Pages;
 
 namespace DreamScape
